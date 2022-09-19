@@ -52,8 +52,8 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
     }
 
     public function getRedirectUrl(): string
-    {
-        return '';
+    {        
+        return $this->session ? ($this->session->url ?? null) : null;
     }
 
     public function getRedirectMethod(): string
