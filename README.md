@@ -6,8 +6,8 @@ Omnipay implementation of the Stripe payment gateway using their "Checkout" proc
 
 [![Build Status](https://travis-ci.org/digitickets/omnipay-stripe-checkout.png?branch=master)](https://travis-ci.org/digitickets/omnipay-stripe-checkout)
 [![Coverage Status](https://coveralls.io/repos/github/digitickets/omnipay-stripe-checkout/badge.svg?branch=master)](https://coveralls.io/github/digitickets/omnipay-stripe-checkout?branch=master)
-[![Latest Stable Version](https://poser.pugx.org/digitickets/omnipay-stripe-checkout/version.png)](https://packagist.org/packages/digitickets/omnipay-stripe-checkout)
-[![Total Downloads](https://poser.pugx.org/digitickets/omnipay-stripe-checkout/d/total.png)](https://packagist.org/packages/digitickets/omnipay-stripe-checkout)
+[![Latest Stable Version](https://poser.pugx.org/digitickets/omnipay-stripe-checkout/version.png)](https://packagist.org/packages/elkadrey/omnipay-stripe-checkout)
+[![Total Downloads](https://poser.pugx.org/digitickets/omnipay-stripe-checkout/d/total.png)](https://packagist.org/packages/elkadrey/omnipay-stripe-checkout)
 
 ## Compatibility
 
@@ -37,7 +37,7 @@ to your `composer.json` file:
 ```json
 {
     "require": {
-        "digitickets/omnipay-stripe-checkout": "~3.0"
+        "elkadrey/omnipay-stripe-checkout": "~3.0"
     }
 }
 ```
@@ -47,7 +47,7 @@ to your `composer.json` file:
 ```json
 {
     "require": {
-        "digitickets/omnipay-stripe-checkout": "~1.0"
+        "elkadrey/omnipay-stripe-checkout": "~1.0"
     }
 }
 ```
