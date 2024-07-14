@@ -17,6 +17,27 @@ class PurchaseRequest extends AbstractCheckoutRequest
         return null;
     }
 
+    public function setMethods($value)
+    {
+        $this->setParameter('methods', $value);
+    }
+
+    public function getMethods()
+    {
+        $methods = $this->getParameter("methods");
+        return !empty($methods) && !is_array($methods) ? [$methods] : $methods;
+    }
+
+    public function setToAccountID($value)
+    {
+        $this->setParameter('to_account_id', $value);
+    }
+
+    public function getToAccountID()
+    {
+        return $this->getParameter("to_account_id");
+    }
+
     public function sendData($data)
     {
         // We use Stripe's SDK to initialise a (Stripe) session. The session gets passed through the process and is
@@ -28,39 +49,42 @@ class PurchaseRequest extends AbstractCheckoutRequest
         // cart, so we have to filter them out (and re-index them) before we build the line items array.
         // Beware because the amount the customer pays is the sum of the values of the remaining items, so if you
         // supply negative-valued items, they will NOT be deducted from the payment amount.
-        $session = \Stripe\Checkout\Session::create(
-            [
-                'client_reference_id' => $this->getTransactionId(),
-                'payment_method_types' => ['card'],
-                'payment_intent_data' => [
-                    'description' => $this->getDescription(),
-                ],
-                'line_items' => array_map(
-                    function (\Omnipay\Common\Item $item) {
-                        // Sometimes PHP can't hold the item price accurately, which is why we have to use round()
-                        // after multiplying by 100. Eg, 9.95 is stored as 9.9499999999999993 and without round() it
-                        // ends up as 994 when it should be 995.
-                        return [
-                            'name' => $item->getName(),
-                            'description' => $this->nullIfEmpty($item->getDescription()),
-                            'amount' => (int)round((100 * $item->getPrice())), // @TODO: The multiplier depends on the currency
-                            'currency' => $this->getCurrency(),
-                            'quantity' => $item->getQuantity(),
-                        ];
-                    },
-                    array_values(
-                        array_filter(
-                            $this->getItems()->all(),
-                            function (\Omnipay\Common\Item $item) {
-                                return $item->getPrice() > 0;
-                            }
-                        )
+        $payment = [
+            'client_reference_id' => $this->getTransactionId(),
+            'mode' => 'payment',
+            'payment_intent_data' => [
+                'description' => $this->getDescription(),
+            ],
+            'line_items' => array_map(
+                function (\Omnipay\Common\Item $item) {
+                    // Sometimes PHP can't hold the item price accurately, which is why we have to use round()
+                    // after multiplying by 100. Eg, 9.95 is stored as 9.9499999999999993 and without round() it
+                    // ends up as 994 when it should be 995.
+                    return [
+                        'name' => $item->getName(),
+                        'description' => $this->nullIfEmpty($item->getDescription()),
+                        'amount' => (int)round((100 * $item->getPrice())), // @TODO: The multiplier depends on the currency
+                        'currency' => $this->getCurrency(),
+                        'quantity' => $item->getQuantity(),
+                    ];
+                },
+                array_values(
+                    array_filter(
+                        $this->getItems()->all(),
+                        function (\Omnipay\Common\Item $item) {
+                            return $item->getPrice() > 0;
+                        }
                     )
-                ),
-                'success_url' => $this->getReturnUrl(),
-                'cancel_url' => $this->getCancelUrl(),
-            ]
-        );
+                )
+            ),
+            'success_url' => $this->getReturnUrl(),
+            'cancel_url' => $this->getCancelUrl(),
+        ];
+        
+        $methods = $this->getMethods();
+        if($methods) $payment['payment_method_types'] = $methods;
+        $account = $this->getToAccountID();
+        $session = \Stripe\Checkout\Session::create($payment, $account ? ['stripe_account' => $account] : null);
 
         return $this->response = new PurchaseResponse($this, ['session' => $session]);
     }
