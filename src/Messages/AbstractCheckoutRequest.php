@@ -25,4 +25,25 @@ abstract class AbstractCheckoutRequest extends AbstractRequest
     {
         return $this->setParameter('apiKey', $value);
     }
+
+    public function setMethods($value)
+    {
+        $this->setParameter('methods', $value);
+    }
+
+    public function getMethods()
+    {
+        $methods = $this->getParameter("methods");
+        return !empty($methods) && !is_array($methods) ? [$methods] : $methods;
+    }
+
+    public function setToAccountID($value)
+    {
+        $this->setParameter('to_account_id', $value);
+    }
+
+    public function getToAccountID()
+    {
+        return $this->getParameter("to_account_id");
+    }
 }

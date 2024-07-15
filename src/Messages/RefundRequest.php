@@ -28,13 +28,20 @@ class RefundRequest extends AbstractCheckoutRequest
         // Now, the transaction reference is assumed to be a JSON string containing the session and actual transaction
         // ref, so we use the ComplexTransactionRef object to extract it.
         try {
+            $account = $this->getToAccountID();      
+            // jj([
+            //     'payment_intent' => ComplexTransactionRef::buildFromJson(
+            //             $this->getTransactionReference()
+            //         )->getTransactionReference(),
+            //     ]);      
+            $getTransactionReference = $this->getTransactionReference();
             $refund = \Stripe\Refund::create(
                 [
-                    'payment_intent' => ComplexTransactionRef::buildFromJson(
-                            $this->getTransactionReference()
-                        )->getTransactionReference(),
+                    'payment_intent' => !empty($getTransactionReference) && json_decode($getTransactionReference) ? ComplexTransactionRef::buildFromJson(
+                        $getTransactionReference
+                        )->getTransactionReference() : $getTransactionReference,
                 ]
-            );
+            ,$account ? ['stripe_account' => $account] : null);
         } catch (\Exception $e) {
             // Stripe wasn't happy about something. In theory, the exception will be a subclass of
             // \Stripe\Exception\ApiErrorException, but there's no harm in catching every exception, because the
